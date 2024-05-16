@@ -5,6 +5,7 @@ import recipeView from './views/recipe';
 import searchView from './views/search';
 import resultsView from './views/results';
 import paginationView from './views/pagination';
+import bookmarksView from './views/bookmarks';
 
 if (module.hot) {
   module.hot.accept();
@@ -17,16 +18,31 @@ const controlRecipes = async function () {
 
     if (!id) return;
 
+    // render spinner while fetching the recipe
     recipeView.renderSpinner();
 
-    // 1) loading recipe
+    // update results view to mark selected search result
+    resultsView.render(model.getSearchResultsPagination());
+
+    // update bookmarks view
+    bookmarksView.render(model.state.bookmarks);
+
+    // fetch the recipe
     await model.loadRecipe(id);
 
-    // 2) rendering recipe
+    // Render the recipe view
     recipeView.render(model.state.recipe);
   } catch (error) {
     recipeView.renderError();
   }
+};
+
+const controlServings = function (newServing) {
+  // update the recipe servings in the state
+  model.updateServings(newServing);
+
+  // update the recipe view
+  recipeView.render(model.state.recipe);
 };
 
 const controlSearchResults = async function () {
@@ -53,10 +69,29 @@ const controlPagination = function (goToPage) {
   paginationView.render(model.state.search);
 };
 
+const controlAddBookmark = function () {
+  // Add or remove recipe from bookmarks
+  model.addRemoveBookmark(model.state.recipe);
+
+  // update the recipe view
+  recipeView.render(model.state.recipe);
+
+  // Render bookmarks
+  bookmarksView.render(model.state.bookmarks);
+};
+
+const controlBookmarks = function () {
+  // List bookmarks
+  bookmarksView.render(model.state.bookmarks);
+};
+
 const init = function () {
-  recipeView.addHanlerRender(controlRecipes);
+  bookmarksView.addHanlerRenderBookmarks(controlBookmarks);
+  recipeView.addHanlerRenderRecipe(controlRecipes);
+  recipeView.addHanlerUpdateServings(controlServings);
+  recipeView.addHandlerAddBookmark(controlAddBookmark);
   searchView.addHanlerSearch(controlSearchResults);
-  paginationView.addHandlerClick(controlPagination);
+  paginationView.addHandlerPagination(controlPagination);
 };
 
 init();
