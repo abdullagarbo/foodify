@@ -1,5 +1,5 @@
-import { API_URL, RESULTS_PER_PAGE } from './config';
-import { getJSON } from './views/helpers';
+import { API_URL, APT_KEY, RESULTS_PER_PAGE } from './config';
+import { getJSON, sendJSON } from './views/helpers';
 
 export const state = {
   recipe: {},
@@ -88,4 +88,36 @@ export const addRemoveBookmark = function (recipe) {
 
   // update localStorage
   localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+};
+
+export const uploadRecipe = async function (newRecipe) {
+  try {
+    const ingredients = Object.entries(newRecipe)
+      .filter(entry => entry[0].startsWith('ingredient') && entry[1] !== '')
+      .map(ing => {
+        const ingArr = ing[1].replaceAll(' ', '').split(',');
+        if (ingArr.length !== 3)
+          throw new Error(
+            'Wrong ingredient format! Please use the correct format :)'
+          );
+
+        const [quantity, unit, description] = ingArr;
+
+        return { quantity: quantity ? +quantity : null, unit, description };
+      });
+
+    const recipe = {
+      title: newRecipe.title,
+      source_url: newRecipe.sourceUrl,
+      image_url: newRecipe.image,
+      publisher: newRecipe.publisher,
+      servings: +newRecipe.servings,
+      cookingTime: +newRecipe.cookingTime,
+      ingredients,
+    };
+
+    const data = await sendJSON(`${API_URL}?key=${APT_KEY}`, recipe);
+  } catch (error) {
+    throw error;
+  }
 };

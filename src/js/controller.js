@@ -6,6 +6,7 @@ import searchView from './views/search';
 import resultsView from './views/results';
 import paginationView from './views/pagination';
 import bookmarksView from './views/bookmarks';
+import addRecipeView from './views/addrecipe';
 
 if (module.hot) {
   module.hot.accept();
@@ -80,6 +81,14 @@ const controlAddBookmark = function () {
   bookmarksView.render(model.state.bookmarks);
 };
 
+const controlAddRecipe = async function (newRecipe) {
+  try {
+    await model.uploadRecipe(newRecipe);
+  } catch (error) {
+    addRecipeView.renderError(error.message);
+  }
+};
+
 const controlBookmarks = function () {
   // List bookmarks
   bookmarksView.render(model.state.bookmarks);
@@ -90,6 +99,7 @@ const init = function () {
   recipeView.addHanlerRenderRecipe(controlRecipes);
   recipeView.addHanlerUpdateServings(controlServings);
   recipeView.addHandlerAddBookmark(controlAddBookmark);
+  addRecipeView.addHandlerUpload(controlAddRecipe);
   searchView.addHanlerSearch(controlSearchResults);
   paginationView.addHandlerPagination(controlPagination);
 };
