@@ -3,7 +3,7 @@ import icons from 'url:../../img/icons.svg';
 export default class View {
   _data;
 
-  render(data) {
+  render(data, render = true) {
     if (!data || data?.length === 0) return this.renderError();
 
     this._data = data;
@@ -38,6 +38,21 @@ export default class View {
           </div>
       `;
 
+    this._clear();
+    this._appendToParent(markup);
+  }
+
+  renderMessage(message = this._message) {
+    const markup = `
+      <div class="message">
+        <div>
+          <svg>
+            <use href="${icons}#icon-smile"></use>
+          </svg>
+        </div>
+        <p>${message}</p>
+      </div>
+    `;
     this._clear();
     this._appendToParent(markup);
   }

@@ -1,5 +1,6 @@
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
+import { async } from 'regenerator-runtime';
 import * as model from './model';
 import recipeView from './views/recipe';
 import searchView from './views/search';
@@ -38,16 +39,10 @@ const controlRecipes = async function () {
   }
 };
 
-const controlServings = function (newServing) {
-  // update the recipe servings in the state
-  model.updateServings(newServing);
-
-  // update the recipe view
-  recipeView.render(model.state.recipe);
-};
-
 const controlSearchResults = async function () {
   try {
+    resultsView.renderSpinner();
+
     // 1) Get search query
     const query = searchView.getQuery();
     if (!query) return;
@@ -70,6 +65,14 @@ const controlPagination = function (goToPage) {
   paginationView.render(model.state.search);
 };
 
+const controlServings = function (newServing) {
+  // update the recipe servings in the state
+  model.updateServings(newServing);
+
+  // update the recipe view
+  recipeView.render(model.state.recipe);
+};
+
 const controlAddBookmark = function () {
   // Add or remove recipe from bookmarks
   model.addRemoveBookmark(model.state.recipe);
@@ -81,17 +84,35 @@ const controlAddBookmark = function () {
   bookmarksView.render(model.state.bookmarks);
 };
 
-const controlAddRecipe = async function (newRecipe) {
-  try {
-    await model.uploadRecipe(newRecipe);
-  } catch (error) {
-    addRecipeView.renderError(error.message);
-  }
-};
-
 const controlBookmarks = function () {
   // List bookmarks
   bookmarksView.render(model.state.bookmarks);
+};
+
+const controlAddRecipe = async function (newRecipe) {
+  try {
+    // Show loading spinner
+    addRecipeView.renderSpinner();
+
+    // upload the new recipe
+    await model.uploadRecipe(newRecipe);
+
+    // render recipe
+    recipeView.render(model.state.recipe);
+
+    // Render bookmark view
+    bookmarksView.render(model.state.bookmarks);
+
+    // Change ID in URL
+    window.history.pushState(null, '', `#${model.state.recipe.id}`);
+
+    // close form window
+    setTimeout(() => {
+      addRecipeView._toggleWindow();
+    }, 2500);
+  } catch (error) {
+    addRecipeView.renderError(error.message);
+  }
 };
 
 const init = function () {

@@ -1,8 +1,10 @@
 import View from './view';
+import icons from 'url:../../img/icons.svg';
 
 class BookmarksView extends View {
   _parentElement = document.querySelector('.bookmarks__list');
   _errorMessage = 'No bookmarks yet. Find a nice recipe and bookmark it :)';
+  _message = '';
 
   addHanlerRenderBookmarks(handler) {
     window.addEventListener('load', handler);
@@ -31,6 +33,13 @@ class BookmarksView extends View {
                         ${el.title}
                     </h4>
                     <p class="preview__publisher">${el.publisher}</p>
+                    <div class="preview__user-generated ${
+                      el.key ? '' : 'hidden'
+                    }">
+                        <svg>
+                            <use href="${icons}#icon-user"></use>
+                        </svg>
+                    </div>
                 </div>
             </a>
         </li>

@@ -5,7 +5,12 @@ import icons from 'url:../../img/icons.svg';
 class RecipeView extends View {
   _parentElement = document.querySelector('.recipe');
   _errorMessage = 'We could not find that recipe. Please try again!';
+  _message = '';
 
+  /**
+   *
+   * @param {*} handler
+   */
   addHanlerRenderRecipe(handler) {
     ['hashchange', 'load'].forEach(e => window.addEventListener(e, handler));
   }
@@ -84,7 +89,9 @@ class RecipeView extends View {
                 </div>
             </div>
 
-            <div class="recipe__user-generated">
+            <div class="recipe__user-generated ${
+              this._data.key ? '' : 'hidden'
+            }">
                 <svg>
                     <use href="${icons}#icon-user"></use>
                 </svg>
